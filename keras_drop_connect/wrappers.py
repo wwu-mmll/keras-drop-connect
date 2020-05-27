@@ -54,16 +54,18 @@ class DropConnect(keras.layers.wrappers.Wrapper):
                 else:
                     raise Exception("Unknown name: {}".format(name))
         else:
-            for name in dir(self.layer):
+            pass
+            for name in names:
+                name = name.split("/")[1].split(":")[0]  # this is not nice, but it works for now with all Versions
                 try:
                     w = getattr(self.layer, name)
-                    if K.is_keras_tensor(w) and w.name in names:
-                        origins[name] = w
-                        if 0. < self.rate < 1.:
-                            setattr(self.layer, name, K.in_train_phase(dropped_weight(w, self.rate), w,
-                                                                       training=training))
+                    origins[name] = w
+                    if 0. < self.rate < 1.:
+                        setattr(self.layer, name, K.in_train_phase(dropped_weight(w, self.rate), w,
+                                                                   training=training))
                 except Exception as e:
                     continue
+
         outputs = self.layer.call(inputs, **kwargs)
         for name, w in origins.items():
             setattr(self.layer, name, w)

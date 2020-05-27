@@ -57,12 +57,13 @@ class DropConnect(keras.layers.wrappers.Wrapper):
             for name in dir(self.layer):
                 try:
                     w = getattr(self.layer, name)
+                    if K.is_keras_tensor(w) and w.name in names:
+                        origins[name] = w
+                        if 0. < self.rate < 1.:
+                            setattr(self.layer, name, K.in_train_phase(dropped_weight(w, self.rate), w,
+                                                                       training=training))
                 except Exception as e:
                     continue
-                if K.is_tensor(w) and w.name in names:
-                    origins[name] = w
-                    if 0. < self.rate < 1.:
-                        setattr(self.layer, name, K.in_train_phase(dropped_weight(w, self.rate), w, training=training))
         outputs = self.layer.call(inputs, **kwargs)
         for name, w in origins.items():
             setattr(self.layer, name, w)

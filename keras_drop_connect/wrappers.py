@@ -2,7 +2,7 @@ from .backend import keras
 from .backend import backend as K
 
 
-class DropConnect(keras.layers.Wrapper):
+class DropConnect(keras.layers.wrappers.Wrapper):
 
     def __init__(self, layer, rate=0.0, seed=None, scale=True, **kwargs):
         super(DropConnect, self).__init__(layer, **kwargs)
@@ -43,20 +43,23 @@ class DropConnect(keras.layers.Wrapper):
             return _dropped_weight
 
         origins = {}
+        names = [x.name for x in self.layer.trainable_weights]
         if isinstance(self.rate, dict):
             for name, rate in self.rate.items():
                 w = getattr(self.layer, name)
-                if w in self.layer.trainable_weights:
+                if w.name in names:
                     origins[name] = w
                     if 0. < rate < 1.:
                         setattr(self.layer, name, K.in_train_phase(dropped_weight(w, rate), w, training=training))
+                else:
+                    raise Exception("Unknown name: {}".format(name))
         else:
             for name in dir(self.layer):
                 try:
                     w = getattr(self.layer, name)
                 except Exception as e:
                     continue
-                if w in self.layer.trainable_weights:
+                if K.is_tensor(w) and w.name in names:
                     origins[name] = w
                     if 0. < self.rate < 1.:
                         setattr(self.layer, name, K.in_train_phase(dropped_weight(w, self.rate), w, training=training))

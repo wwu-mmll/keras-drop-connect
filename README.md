@@ -3,8 +3,6 @@
 [![Build Status](https://travis-ci.com/jernsting/keras-drop-connect.svg?branch=master)](https://travis-ci.com/jernsting/keras-drop-connect)
 
 ![](https://img.shields.io/badge/keras-tensorflow-blue.svg)
-![](https://img.shields.io/badge/keras-tf.keras-blue.svg)
-![](https://img.shields.io/badge/keras-tf.keras/eager-blue.svg)
 ![](https://img.shields.io/badge/keras-tf.keras/2.0.0_beta-blue.svg)
 
 
